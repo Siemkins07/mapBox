@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 // reactstrap components
-import {Container, Row, Col, Button, Card, CardBody, UncontrolledCollapse, Table } from "reactstrap";
+import {Container, Row, Col, Button, Card, CardBody, UncontrolledCollapse, Table, Badge } from "reactstrap";
 // core components
 import ReactMapGL, { Marker } from 'react-map-gl';
 
@@ -83,6 +83,7 @@ function Akordeon() {
           <th>Latitude</th>
           <th>Longitude</th>
           <th>Addition time</th>
+          <th>Delete point</th>
         </tr>
       </thead>
       <tbody>
@@ -92,7 +93,11 @@ function Akordeon() {
             <th scope="row">{marker.id}</th>                  
             <td> {marker.latitude }</td>
             <td>{marker.longitude}</td>
-            <td>{new Intl.DateTimeFormat('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(marker.timeStamp)}</td>
+              <td>{new Intl.DateTimeFormat('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(marker.timeStamp)}</td>
+              <td> <Badge color="danger" className="mr-1">
+                Delete
+              </Badge></td>
+              
             </tr>
         
             ))}

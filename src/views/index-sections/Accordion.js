@@ -1,11 +1,28 @@
 
 
-import React from "react";
+import React, { useState } from "react";
 // reactstrap components
-import {Container, Row, Col, Button, Card, CardBody, UncontrolledCollapse } from "reactstrap";
+import {Container, Row, Col, Button, Card, CardBody, UncontrolledCollapse, Table } from "reactstrap";
 // core components
+import ReactMapGL, { Marker } from 'react-map-gl';
 
 function Akordeon() {
+
+  const [viewport, setViewport] = useState({
+    latitude: 52.2319581,
+    longitude: 21.0067249,
+    zoom: 15
+  })
+
+  // const pinStyle = {
+  //   color: 'blue !important',
+  //   width: '22px !important',
+  //   height: '22px !important'
+    
+  // }
+
+  const [markers, setMarkers] = useState([])
+
   return (
     <div className="section section-accordion">
       <Container>
@@ -21,22 +38,66 @@ function Akordeon() {
         <UncontrolledCollapse toggler="buttonMapToggler">
           <Card>
                 <CardBody>
-                  MAPA
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt
-              magni, voluptas debitis similique porro a molestias consequuntur
-              earum odio officiis natus, amet hic, iste sed dignissimos esse
-              fuga! Minus, alias.
+                  <ReactMapGL
+                    {...viewport}
+                    width="100%"
+                    height='350px'
+                    mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
+                    onViewportChange={viewport => setViewport(viewport)}
+                    mapStyle='mapbox://styles/mapbox/streets-v11'
+                    maxZoom={18}
+                    onMouseDown={(e) => {
+                      console.log(e.srcEvent);
+                      
+                    }}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      const latitude = e.lngLat[1]
+                      const longitude = e.lngLat[0]
+                      const timeStamp = e.timeStamp
+                      setMarkers(markers => [...markers, {id: markers.length + 1, latitude, longitude, timeStamp }]) 
+                    }}                    
+                  >
+                    {markers.map(marker => (
+                      <Marker
+                        key={marker.id}
+                        latitude={marker.latitude}
+                        longitude={marker.longitude}
+                        timeStamp={marker.timeStamp}
+                      >   
+                        <i className="now-ui-icons location_pin"></i>
+                      </Marker>
+                    ))}
+         </ReactMapGL>
             </CardBody>
           </Card>
         </UncontrolledCollapse>
         <UncontrolledCollapse toggler="#buttonPositionsToggler">
           <Card>
-                <CardBody>
-                  COORDINATES
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt
-              magni, voluptas debitis similique porro a molestias consequuntur
-              earum odio officiis natus, amet hic, iste sed dignissimos esse
-              fuga! Minus, alias.
+            <CardBody>
+              COORDINATES
+                <Table>
+                  <thead>
+        <tr>
+          <th>#</th>
+          <th>Latitude</th>
+          <th>Longitude</th>
+          <th>Addition time</th>
+        </tr>
+      </thead>
+      <tbody>
+          {markers.map(marker => (
+            
+              <tr>
+            <th scope="row">{marker.id}</th>                  
+            <td> {marker.latitude }</td>
+            <td>{marker.longitude}</td>
+            <td>{new Intl.DateTimeFormat('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(marker.timeStamp)}</td>
+            </tr>
+        
+            ))}
+      </tbody>
+          </Table>           
             </CardBody>
           </Card>
             </UncontrolledCollapse>
@@ -47,47 +108,5 @@ function Akordeon() {
     </div>
   )
   }
-
-
-
-      {/* <div className="item">
-        <a
-          href="#pablo"
-          id="exampleAccordion1"
-          onClick={e => e.preventDefault()}
-        >
-          Toggle item
-        </a>
-        <UncontrolledCollapse
-          role="tabpanel"
-          toggler="#exampleAccordion1"
-          defaultOpen
-        >
-          <p className="mb-3">
-            Raz
-          </p>
-        </UncontrolledCollapse>
-      </div>
-      <div className="item">
-        <a
-          href="#pablo"
-          id="exampleAccordion2"
-          onClick={e => e.preventDefault()}
-        >
-          Toggle item 2
-        </a>
-        <UncontrolledCollapse role="tabpanel" toggler="#exampleAccordion2">
-          <p className="mb-3">
-            Donec at ipsum dignissim, rutrum turpis scelerisque, tristique
-            lectus. Pellentesque habitant morbi tristique senectus et netus et
-            malesuada fames ac turpis egestas. Vivamus nec dui turpis. Orci
-            varius natoque penatibus et magnis dis parturient montes, nascetur
-            ridiculus mus.
-          </p>
-        </UncontrolledCollapse>
-      </div>
-    </> */}
-//   );
-// }
 
 export default Akordeon;

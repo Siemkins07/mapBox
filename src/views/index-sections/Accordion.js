@@ -6,22 +6,43 @@ import {Container, Row, Col, Button, Card, CardBody, UncontrolledCollapse, Table
 // core components
 import ReactMapGL, { Marker } from 'react-map-gl';
 
-function Akordeon() {
+const list = []
+// const events = {}
 
+function Akordeon() {
+  
+  
+  const [markers, setMarkers] = useState(list)
+  
   const [viewport, setViewport] = useState({
     latitude: 52.2319581,
     longitude: 21.0067249,
-    zoom: 15
+    zoom: 15,
   })
+  
+  const [action, setAction] = useState({})
 
-  // const pinStyle = {
-  //   color: 'blue !important',
-  //   width: '22px !important',
-  //   height: '22px !important'
-    
-  // }
+ const logDragEvent = (name, event) => {
+   setAction([name]= event.lngLat, ...action,)
+  }
 
-  const [markers, setMarkers] = useState([])
+  const onMarkerStart = event => {
+    logDragEvent('onDragStart', event)
+  }
+
+  const onMarkerDrag = event => {
+    logDragEvent('onDrag', event)
+  }
+
+  const onMarkerEnd = event => {
+    logDragEvent('onDragEnd', event)
+    setMarkers(markers => [...markers, {id: markers.length +1, latitude: event.lngLat[1], longitude: event.lng[0]}])
+
+  }
+                    
+  const handleRemovePoint = id => {
+    setMarkers(markers => markers.filter(marker => marker.id !== id)) 
+  }
 
   return (
     <div className="section section-accordion">
@@ -35,6 +56,7 @@ function Akordeon() {
         <Button className="btn-round" color="info" outline type="button" size="lg" id="buttonPositionsToggler">
               Coordinates
         </Button>
+            {/* <div style={{display:'flex'}}> */}
         <UncontrolledCollapse toggler="buttonMapToggler">
           <Card>
                 <CardBody>
@@ -45,27 +67,31 @@ function Akordeon() {
                     mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
                     onViewportChange={viewport => setViewport(viewport)}
                     mapStyle='mapbox://styles/mapbox/streets-v11'
-                    maxZoom={18}
-                    onMouseDown={(e) => {
-                      console.log(e.srcEvent);
-                      
-                    }}
+                    maxZoom={18} 
                     onClick={(e) => {
+                      console.log(e)
                       e.preventDefault()
                       const latitude = e.lngLat[1]
                       const longitude = e.lngLat[0]
                       const timeStamp = e.timeStamp
-                      setMarkers(markers => [...markers, {id: markers.length + 1, latitude, longitude, timeStamp }]) 
+                      setMarkers(markers => [...markers, { id: markers.length + 1, latitude, longitude, timeStamp }])
+                    
                     }}                    
                   >
                     {markers.map(marker => (
                       <Marker
-                        key={marker.id}
+                        // key={marker.id}
                         latitude={marker.latitude}
                         longitude={marker.longitude}
-                        timeStamp={marker.timeStamp}
+                        // timeStamp={marker.timeStamp}
+                        offsetTop={-20}
+                        offsetLeft={-10}
+                        draggable
+                        onDragStart={onMarkerStart}
+                        onDrag={onMarkerDrag}
+                        onDragEnd={onMarkerEnd}
                       >   
-                        <i className="now-ui-icons location_pin"></i>
+                        <i className="now-ui-icons location_pin">{marker.id}</i>
                       </Marker>
                     ))}
          </ReactMapGL>
@@ -82,31 +108,37 @@ function Akordeon() {
           <th>#</th>
           <th>Latitude</th>
           <th>Longitude</th>
-          <th>Addition time</th>
+          {/* <th>Addition time</th> */}
           <th>Delete point</th>
         </tr>
       </thead>
       <tbody>
           {markers.map(marker => (
-            
               <tr>
-            <th scope="row">{marker.id}</th>                  
+              <th scope="row">{marker.id}</th>                  
             <td> {marker.latitude }</td>
             <td>{marker.longitude}</td>
-              <td>{new Intl.DateTimeFormat('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(marker.timeStamp)}</td>
-              <td> <Badge color="danger" className="mr-1">
-                Delete
-              </Badge></td>
-              
-            </tr>
-        
-            ))}
+              {/* <td>{new Intl.DateTimeFormat('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(marker.timeStamp)}</td> */}
+              <td>
+                <Badge
+                  color="danger"
+                  className="mr-1"
+                  style={{ display: 'flex', justifyContent: 'center', cursor: "pointer" }}
+                  onClick={() => handleRemovePoint(marker.id)}
+                
+                >
+                  Delete
+              </Badge>
+              </td>
+            </tr>       
+          ))}
+                      
       </tbody>
           </Table>           
             </CardBody>
           </Card>
             </UncontrolledCollapse>
-            
+            {/* </div> */}
           </Col>
         </Row>
       </Container>
